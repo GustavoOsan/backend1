@@ -1,0 +1,27 @@
+{
+  "name": "proyecto-1",
+  "version": "1.0.0",
+  "description": "Primera aplicacion",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GustavoOsan/backend1.git"
+  },
+  "author": "Gustavo C. Osan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/GustavoOsan/backend1/issues"
+  },
+  "homepage": "https://github.com/GustavoOsan/backend1#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
