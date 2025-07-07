@@ -1,0 +1,35 @@
+[
+    {
+        "id": "1",
+        "title": "Remera",
+        "description": "Remera de algodón",
+        "code": "REM001",
+        "price": 5000,
+        "status": true,
+        "stock": 50,
+        "category": "Indumentaria",
+        "thumbnails": []
+    },
+    {
+        "id": "2",
+        "title": "Buzo",
+        "description": "Buzo con capucha",
+        "code": "BUZ001",
+        "price": 20000,
+        "status": true,
+        "stock": 30,
+        "category": "Indumentaria",
+        "thumbnails": []
+    },
+    {
+        "id": "3",
+        "title": "Rompevientos",
+        "description": "Rompevientos impermeable",
+        "code": "ROM001",
+        "price": 25000,
+        "status": true,
+        "stock": 20,
+        "category": "Indumentaria",
+        "thumbnails": []
+    }
+]
