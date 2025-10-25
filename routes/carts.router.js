@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const CartManager = require('../managers/CartManager.js');
+const CartManager = require('../managers/cart.manager.js');
 
 const router = Router();
 const cartManager = new CartManager();
@@ -25,7 +25,7 @@ router.post('/:cid/product/:pid', (req, res) => {
     const result = cartManager.addProductToCart(cid, pid);
 
     if (result.error) {
-        return res.status(404).json({ error: result.error });
+        return res.status(4404).json({ error: result.error });
     }
 
     res.status(200).json(result);
