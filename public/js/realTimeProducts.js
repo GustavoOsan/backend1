@@ -5,12 +5,16 @@ function renderProducts(products) {
     productList.innerHTML = '';
 
     products.forEach(product => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <strong>${product.title}</strong> - $${product.price}
+        const div = document.createElement('div');
+        div.classList.add('card');
+        div.innerHTML = `
+            <strong>${product.title}</strong>
+            <p>${product.description}</p>
+            <div class="price">$ ${product.price}</div>
+            <p>Stock: ${product.stock}</p>
             <button class="delete-btn" data-id="${product.id}">Eliminar</button>
         `;
-        productList.appendChild(li);
+        productList.appendChild(div);
     });
 }
 
@@ -42,7 +46,7 @@ createForm.addEventListener('submit', async (e) => {
             body: JSON.stringify(productData)
         });
         createForm.reset();
-        
+
     } catch (error) {
         console.error("Error al crear producto:", error);
     }
@@ -51,7 +55,7 @@ createForm.addEventListener('submit', async (e) => {
 document.getElementById('products-list').addEventListener('click', async (e) => {
     if (e.target.classList.contains('delete-btn')) {
         const productId = e.target.getAttribute('data-id');
-        
+
         try {
             await fetch(`/api/products/${productId}`, {
                 method: 'DELETE'
