@@ -12,7 +12,6 @@ router.get('/', (req, res) => {
 router.get('/:pid', (req, res) => {
     const { pid } = req.params;
     const product = productManager.getProductById(pid);
-    
     if (product) {
         res.status(200).json(product);
     } else {
@@ -21,11 +20,14 @@ router.get('/:pid', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-    const result = productManager.addProduct(req.body); 
+    const result = productManager.addProduct(req.body);
 
     if (result.error) {
         return res.status(400).json({ error: result.error });
     }
+
+    const socketServer = req.context.socketServer;
+    socketServer.emit('updateProducts', productManager.getProducts());
 
     res.status(201).json(result);
 });
@@ -33,7 +35,6 @@ router.post('/', (req, res) => {
 router.put('/:pid', (req, res) => {
     const { pid } = req.params;
     const updateFields = req.body;
-    
     const updatedProduct = productManager.updateProduct(pid, updateFields);
 
     if (updatedProduct) {
@@ -48,6 +49,9 @@ router.delete('/:pid', (req, res) => {
     const success = productManager.deleteProduct(pid);
 
     if (success) {
+        const socketServer = req.context.socketServer;
+        socketServer.emit('updateProducts', productManager.getProducts());
+
         res.status(204).send();
     } else {
         res.status(404).json({ error: 'Producto no encontrado.' });

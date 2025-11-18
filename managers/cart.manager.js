@@ -1,7 +1,8 @@
 const fs = require('fs');
 const { randomUUID } = require('crypto');
+const path = require('path');
 
-const CARTS_FILE_PATH = './data/carts.json';
+const CARTS_FILE_PATH = path.join(__dirname, '../data/carts.json');
 
 class CartManager {
 

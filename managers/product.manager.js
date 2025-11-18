@@ -1,7 +1,8 @@
 const fs = require('fs');
 const { randomUUID } = require('crypto');
+const path = require('path'); 
 
-const PRODUCTS_FILE_PATH = './data/products.json';
+const PRODUCTS_FILE_PATH = path.join(__dirname, '../data/products.json');
 
 class ProductManager {
     
