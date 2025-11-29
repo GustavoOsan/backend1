@@ -30,7 +30,7 @@
     document.querySelectorAll('.add-to-cart-btn').forEach(button => {
         button.addEventListener('click', async () => {
             const pid = button.getAttribute('data-id');
-            const cid = '692b31b7b564fe1ddffae52d'; 
+            const cid = '692b5f73466abdc3486344f5'; 
 
             try {
                 const response = await fetch(`/api/carts/${cid}/product/${pid}`, {
