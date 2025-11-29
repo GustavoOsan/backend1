@@ -1,60 +1,114 @@
 const { Router } = require('express');
-const ProductManager = require('../managers/product.manager.js');
+const productModel = require('../models/product.model.js');
 
 const router = Router();
-const productManager = new ProductManager();
 
-router.get('/', (req, res) => {
-    const products = productManager.getProducts();
-    res.status(200).json(products);
-});
+router.get('/', async (req, res) => {
+    try {
+        let { limit = 10, page = 1, sort, query } = req.query;
+        let filter = {};
+        if (query) {
+            if (query === 'true' || query === 'false') {
+                filter.status = query === 'true';
+            } else {
+                filter.category = query;
+            }
+        }
 
-router.get('/:pid', (req, res) => {
-    const { pid } = req.params;
-    const product = productManager.getProductById(pid);
-    if (product) {
-        res.status(200).json(product);
-    } else {
-        res.status(404).json({ error: 'Producto no encontrado.' });
+        let options = {
+            limit: parseInt(limit),
+            page: parseInt(page),
+            lean: true
+        };
+
+        if (sort) {
+            options.sort = { price: sort === 'asc' ? 1 : -1 };
+        }
+        let result = await productModel.paginate(filter, options);
+        const response = {
+            status: 'success',
+            payload: result.docs,
+            totalPages: result.totalPages,
+            prevPage: result.prevPage,
+            nextPage: result.nextPage,
+            page: result.page,
+            hasPrevPage: result.hasPrevPage,
+            hasNextPage: result.hasNextPage,
+            prevLink: result.hasPrevPage ? `/api/products?page=${result.prevPage}&limit=${limit}${query ? `&query=${query}` : ''}${sort ? `&sort=${sort}` : ''}` : null,
+            nextLink: result.hasNextPage ? `/api/products?page=${result.nextPage}&limit=${limit}${query ? `&query=${query}` : ''}${sort ? `&sort=${sort}` : ''}` : null
+        };
+
+        res.send(response);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ status: 'error', message: 'Error al obtener productos' });
     }
 });
 
-router.post('/', (req, res) => {
-    const result = productManager.addProduct(req.body);
 
-    if (result.error) {
-        return res.status(400).json({ error: result.error });
-    }
+router.get('/:pid', async (req, res) => {
+    try {
+        const { pid } = req.params;
+        const product = await productModel.findById(pid);
 
-    const socketServer = req.context.socketServer;
-    socketServer.emit('updateProducts', productManager.getProducts());
+        if (!product) {
+            return res.status(404).send({ status: 'error', message: 'Producto no encontrado' });
+        }
+        res.send({ status: 'success', payload: product });
 
-    res.status(201).json(result);
-});
-
-router.put('/:pid', (req, res) => {
-    const { pid } = req.params;
-    const updateFields = req.body;
-    const updatedProduct = productManager.updateProduct(pid, updateFields);
-
-    if (updatedProduct) {
-        res.status(200).json(updatedProduct);
-    } else {
-        res.status(404).json({ error: 'Producto no encontrado.' });
+    } catch (error) {
+        res.status(500).send({ status: 'error', message: 'Error interno del servidor' });
     }
 });
 
-router.delete('/:pid', (req, res) => {
-    const { pid } = req.params;
-    const success = productManager.deleteProduct(pid);
 
-    if (success) {
+router.post('/', async (req, res) => {
+    try {
+        const productData = req.body;
+        const newProduct = await productModel.create(productData);
         const socketServer = req.context.socketServer;
-        socketServer.emit('updateProducts', productManager.getProducts());
+        socketServer.emit('updateProducts', await productModel.find());
 
-        res.status(204).send();
-    } else {
-        res.status(404).json({ error: 'Producto no encontrado.' });
+        res.status(201).send({ status: 'success', payload: newProduct });
+    } catch (error) {
+        res.status(400).send({ status: 'error', message: error.message });
+    }
+});
+
+router.put('/:pid', async (req, res) => {
+    try {
+        const { pid } = req.params;
+        const updateData = req.body;
+        const result = await productModel.updateOne({ _id: pid }, updateData);
+
+        if (result.matchedCount === 0) {
+            return res.status(404).send({ status: 'error', message: 'Producto no encontrado' });
+        }
+
+        const updatedProduct = await productModel.findById(pid);
+        res.send({ status: 'success', payload: updatedProduct });
+
+    } catch (error) {
+        res.status(500).send({ status: 'error', message: 'Error al actualizar producto' });
+    }
+});
+
+
+router.delete('/:pid', async (req, res) => {
+    try {
+        const { pid } = req.params;
+        const result = await productModel.deleteOne({ _id: pid });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).send({ status: 'error', message: 'Producto no encontrado' });
+        }
+
+        const socketServer = req.context.socketServer;
+        socketServer.emit('updateProducts', await productModel.find());
+        res.send({ status: 'success', message: 'Producto eliminado' });
+
+    } catch (error) {
+        res.status(500).send({ status: 'error', message: 'Error al eliminar producto' });
     }
 });
 
